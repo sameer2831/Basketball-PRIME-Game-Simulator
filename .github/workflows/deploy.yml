@@ -1,0 +1,35 @@
+name: Deploy React App to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main   # or your default branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      with:
+        submodules: false  # important to avoid submodule errors
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Install dependencies
+      run: npm install
+      working-directory: ./nba-game-simulator
+
+    - name: Build React app
+      run: npm run build
+      working-directory: ./nba-game-simulator
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./nba-game-simulator/build
