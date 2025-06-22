@@ -82,6 +82,11 @@ export default function MatchSimulator({ teamA = [], teamB = [] }) {
       }
     }));
   };
+
+  const [quarterlyScores, setQuarterlyScores] = useState({
+  A: [],
+  B: [],
+});
  const applyAdvancedStats = (player, fatigue, momentumBoost) => {
     const trueShooting = player['TS%'] ?? player['FG%']; // fallback
     const turnoverRate = player['TOV%'] / 100 || 0.12;
@@ -104,6 +109,7 @@ export default function MatchSimulator({ teamA = [], teamB = [] }) {
     setGameLog([]);
     setQuarter(1);
     setQuarterTimer(720);
+    setQuarterlyScores({ A: [], B: [] });
     fatigueMap.current = {};
     lastScorer.current = null;
     setMomentum({ team: null, streak: 0 });
@@ -338,6 +344,10 @@ const simulateGame = async () => {
         }
         updateFatigue([...teamA, ...teamB]);
       }
+      setQuarterlyScores(prev => ({
+      A: [...prev.A, getTeamPoints(boxScoreRef.current, 'Team A') - (prev.A.reduce((a, b) => a + b, 0) || 0)],
+      B: [...prev.B, getTeamPoints(boxScoreRef.current, 'Team B') - (prev.B.reduce((a, b) => a + b, 0) || 0)],
+    }));
       addLog(`--- Quarter ${q} Ended --- Score: A ${getTeamPoints(boxScoreRef.current, 'Team A')} - B ${getTeamPoints(boxScoreRef.current, 'Team B')}`);
     }
     let overtimeCount = 0;
@@ -357,6 +367,10 @@ const simulateGame = async () => {
       }
       updateFatigue([...teamA, ...teamB]);
     }
+    setQuarterlyScores(prev => ({
+      A: [...prev.A, getTeamPoints(boxScoreRef.current, 'Team A') - (prev.A.reduce((a, b) => a + b, 0) || 0)],
+      B: [...prev.B, getTeamPoints(boxScoreRef.current, 'Team B') - (prev.B.reduce((a, b) => a + b, 0) || 0)],
+    }));
     addLog(`--- Overtime ${overtimeCount} Ended --- Score: A ${getTeamPoints(boxScoreRef.current, 'Team A')} - B ${getTeamPoints(boxScoreRef.current, 'Team B')}`);
   }
 
@@ -374,16 +388,15 @@ const simulateGame = async () => {
         </div>
       </div>
       <AnimatePresence mode="wait">
-        <motion.div
-          key={`${scoreA}-${scoreB}`}
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.8, opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="bg-blue-100 p-4 rounded-lg shadow-md"
-        >
-          <Scoreboard scoreA={scoreA} scoreB={scoreB} />
-        </motion.div>
+        
+          <Scoreboard
+  scoreA={scoreA}
+  scoreB={scoreB}
+  quarterlyScoresA={quarterlyScores.A}
+  quarterlyScoresB={quarterlyScores.B}
+  currentQuarter={quarter}
+/>
+        
       </AnimatePresence>
       <GameControl isSimulating={isSimulating} onStartGame={simulateGame} onResetGame={resetGame} />
       <GameLog gameLog={gameLog} />
