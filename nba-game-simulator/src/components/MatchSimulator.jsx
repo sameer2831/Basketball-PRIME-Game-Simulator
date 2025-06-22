@@ -23,7 +23,6 @@ const shotZones = {
 function decideShotType(player) {
   const pos = (player['Pos'] || 'G').toUpperCase();
   const zonePrefs = positionShotPreferences[pos] || ['midRange'];
-
   const rand = Math.random();
   let selectedZone = 'midRange';
 
@@ -32,8 +31,7 @@ function decideShotType(player) {
 
   const zone = shotZones[selectedZone];
   const playerZoneFG =
-    selectedZone === 'three' ? player['3P%'] ?? zone.basePercentage :
-    player['FG%'] ?? zone.basePercentage;
+    selectedZone === 'three' ? player['3P%'] ?? zone.basePercentage : player['FG%'] ?? zone.basePercentage;
 
   return {
     isThreePointer: selectedZone === 'three',
@@ -44,30 +42,47 @@ function decideShotType(player) {
 }
 
 export default function MatchSimulator({ teamA = [], teamB = [] }) {
-  // Removed scoreA and scoreB from state
   const [gameLog, setGameLog] = useState([]);
   const [isSimulating, setIsSimulating] = useState(false);
-  const [quarterTimer, setQuarterTimer] = useState(720); // 12 minutes in seconds
+  const [quarterTimer, setQuarterTimer] = useState(720);
   const [quarter, setQuarter] = useState(1);
-  const fatigueMap = useRef({});
   const [momentum, setMomentum] = useState({ team: null, streak: 0 });
+  const fatigueMap = useRef({});
   const lastScorer = useRef(null);
-  const [boxScore, setBoxScore] = useState({});
 
-  // Helper function to calculate team points from boxScore
-  const getTeamPoints = (boxScore, teamPrefix) => {
-    return Object.entries(boxScore)
+  const [boxScore, setBoxScore] = useState({});
+  const boxScoreRef = useRef({});
+  const setAndMirrorBoxScore = (updaterFn) => {
+    setBoxScore(prev => {
+      const updated = updaterFn(prev);
+      boxScoreRef.current = updated;
+      return updated;
+    });
+  };
+
+  const getTeamPoints = (source, teamPrefix) => {
+    return Object.entries(source)
       .filter(([name]) => name.startsWith(teamPrefix))
       .reduce((total, [, stats]) => total + (stats.PTS || 0), 0);
   };
 
-  // These are the scoreboard totals derived from boxScore
-  const scoreA = getTeamPoints(boxScore, 'Team A');
-  const scoreB = getTeamPoints(boxScore, 'Team B');
+  const scoreA = getTeamPoints(boxScoreRef.current, 'Team A');
+  const scoreB = getTeamPoints(boxScoreRef.current, 'Team B');
 
-  const addLog = (msg) => setGameLog((prev) => [...prev, msg]);
+  const addLog = (msg) => setGameLog(prev => [...prev, msg]);
 
-  const applyAdvancedStats = (player, fatigue, momentumBoost) => {
+  const updateStats = (playerName, stat, increment = 1) => {
+    const prefix = teamA.some(p => p.Player === playerName) ? 'Team A - ' : 'Team B - ';
+    const fullName = `${prefix}${playerName}`;
+    setAndMirrorBoxScore(prev => ({
+      ...prev,
+      [fullName]: {
+        ...(prev[fullName] || {}),
+        [stat]: (prev[fullName]?.[stat] || 0) + increment
+      }
+    }));
+  };
+ const applyAdvancedStats = (player, fatigue, momentumBoost) => {
     const trueShooting = player['TS%'] ?? player['FG%']; // fallback
     const turnoverRate = player['TOV%'] / 100 || 0.12;
     const assistRate = player['AST%'] / 100 || 0.1;
@@ -85,7 +100,6 @@ export default function MatchSimulator({ teamA = [], teamB = [] }) {
       freeThrowAttempts: Math.random() < freeThrowRate ? 2 : 0,
     };
   };
-
   const resetGame = () => {
     setGameLog([]);
     setQuarter(1);
@@ -96,32 +110,26 @@ export default function MatchSimulator({ teamA = [], teamB = [] }) {
     setIsSimulating(false);
     const initBoxScore = {};
     teamA.forEach(player => {
-      initBoxScore[`Team A - ${player.Player}`] = {
-        PTS: 0, AST: 0, TRB: 0, STL: 0, BLK: 0, TOV: 0, PF: 0,
-        FGM: 0, FGA: 0, '3PM': 0, '3PA': 0, FTM: 0, FTA: 0,
-      };
+      initBoxScore[`Team A - ${player.Player}`] = { PTS: 0, AST: 0, TRB: 0, STL: 0, BLK: 0, TOV: 0, PF: 0, FGM: 0, FGA: 0, '3PM': 0, '3PA': 0, FTM: 0, FTA: 0 };
     });
     teamB.forEach(player => {
-      initBoxScore[`Team B - ${player.Player}`] = {
-        PTS: 0, AST: 0, TRB: 0, STL: 0, BLK: 0, TOV: 0, PF: 0,
-        FGM: 0, FGA: 0, '3PM': 0, '3PA': 0, FTM: 0, FTA: 0,
-      };
+      initBoxScore[`Team B - ${player.Player}`] = { PTS: 0, AST: 0, TRB: 0, STL: 0, BLK: 0, TOV: 0, PF: 0, FGM: 0, FGA: 0, '3PM': 0, '3PA': 0, FTM: 0, FTA: 0 };
     });
-    setBoxScore(initBoxScore);
+    setAndMirrorBoxScore(() => initBoxScore);
   };
 
-  const updateStats = (playerName, stat, increment = 1) => {
-    const prefix = teamA.some(p => p.Player === playerName) ? 'Team A - ' : 'Team B - ';
-    const fullName = `${prefix}${playerName}`;
+  // const updateStats = (playerName, stat, increment = 1) => {
+  //   const prefix = teamA.some(p => p.Player === playerName) ? 'Team A - ' : 'Team B - ';
+  //   const fullName = `${prefix}${playerName}`;
 
-    setBoxScore(prev => ({
-      ...prev,
-      [fullName]: {
-        ...(prev[fullName] || {}),
-        [stat]: (prev[fullName]?.[stat] || 0) + increment
-      }
-    }));
-  };
+  //   setBoxScore(prev => ({
+  //     ...prev,
+  //     [fullName]: {
+  //       ...(prev[fullName] || {}),
+  //       [stat]: (prev[fullName]?.[stat] || 0) + increment
+  //     }
+  //   }));
+  // };
 
   const getFatigueMultiplier = (player) => {
     const minutes = fatigueMap.current[player.Player] || 0;
@@ -304,7 +312,7 @@ const simulatePossession = (offenseTeam, defenseTeam, currentTeamName) => {
 };
 
 
-  const simulateGame = async () => {
+const simulateGame = async () => {
     if (teamA.length !== 5 || teamB.length !== 5) {
       addLog("Please assign 5 players to each team.");
       return;
@@ -313,14 +321,12 @@ const simulatePossession = (offenseTeam, defenseTeam, currentTeamName) => {
     resetGame();
     setIsSimulating(true);
     addLog("Game Started!");
-
     let currentPossessionTeam = Math.random() < 0.5 ? 'A' : 'B';
 
     for (let q = 1; q <= 4; q++) {
       setQuarter(q);
       setQuarterTimer(720);
       addLog(`--- Quarter ${q} Started ---`);
-
       for (let p = 0; p < 45; p++) {
         await new Promise(res => setTimeout(res, 100));
         if (currentPossessionTeam === 'A') {
@@ -332,15 +338,32 @@ const simulatePossession = (offenseTeam, defenseTeam, currentTeamName) => {
         }
         updateFatigue([...teamA, ...teamB]);
       }
-
-      addLog(`--- Quarter ${q} Ended --- Score: A ${getTeamPoints(boxScore, 'Team A')} - B ${getTeamPoints(boxScore, 'Team B')}`);
+      addLog(`--- Quarter ${q} Ended --- Score: A ${getTeamPoints(boxScoreRef.current, 'Team A')} - B ${getTeamPoints(boxScoreRef.current, 'Team B')}`);
     }
+    let overtimeCount = 0;
+  while (getTeamPoints(boxScoreRef.current, 'Team A') === getTeamPoints(boxScoreRef.current, 'Team B')) {
+    overtimeCount++;
+    setQuarter(4 + overtimeCount);
+    setQuarterTimer(300); // 5 min overtime or simulate N possessions
+    addLog(`--- Overtime ${overtimeCount} Started ---`);
+    for (let p = 0; p < 15; p++) {
+      await new Promise(res => setTimeout(res, 100));
+      if (currentPossessionTeam === 'A') {
+        simulatePossession(teamA, teamB, 'Team A');
+        currentPossessionTeam = 'B';
+      } else {
+        simulatePossession(teamB, teamA, 'Team B');
+        currentPossessionTeam = 'A';
+      }
+      updateFatigue([...teamA, ...teamB]);
+    }
+    addLog(`--- Overtime ${overtimeCount} Ended --- Score: A ${getTeamPoints(boxScoreRef.current, 'Team A')} - B ${getTeamPoints(boxScoreRef.current, 'Team B')}`);
+  }
 
     addLog("--- Game Over ---");
-    addLog(`Final: Team A ${getTeamPoints(boxScore, 'Team A')} - Team B ${getTeamPoints(boxScore, 'Team B')}`);
+    addLog(`Final: Team A ${getTeamPoints(boxScoreRef.current, 'Team A')} - Team B ${getTeamPoints(boxScoreRef.current, 'Team B')}`);
     setIsSimulating(false);
   };
-
 
   return (
     <div className="p-4 space-y-4">
