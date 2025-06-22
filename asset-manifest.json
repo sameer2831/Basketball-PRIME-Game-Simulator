@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/nba-simulator/static/css/main.42018c1a.css",
+    "main.js": "/nba-simulator/static/js/main.a66e2092.js",
+    "static/js/453.950ad98c.chunk.js": "/nba-simulator/static/js/453.950ad98c.chunk.js",
+    "static/media/logo.png": "/nba-simulator/static/media/logo.59f01bf806ea4a354a00.png",
+    "index.html": "/nba-simulator/index.html",
+    "main.42018c1a.css.map": "/nba-simulator/static/css/main.42018c1a.css.map",
+    "main.a66e2092.js.map": "/nba-simulator/static/js/main.a66e2092.js.map",
+    "453.950ad98c.chunk.js.map": "/nba-simulator/static/js/453.950ad98c.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.42018c1a.css",
+    "static/js/main.a66e2092.js"
+  ]
+}
