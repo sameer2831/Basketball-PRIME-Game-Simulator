@@ -84,8 +84,4 @@ MIT License © Sameer Balkawade
 Sameer Balkawade
 
 
----
 
-You can copy this content into your `README.md` file at your repo root.
-
-If you want it customized further (e.g., add screenshots, badges), just let me know!
