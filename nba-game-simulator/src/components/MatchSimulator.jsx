@@ -135,7 +135,7 @@ export default function MatchSimulator({ teamA = [], teamB = [] }) {
   //       [stat]: (prev[fullName]?.[stat] || 0) + increment
   //     }
   //   }));
-  // };
+  // }; 
 
   const getFatigueMultiplier = (player) => {
     const minutes = fatigueMap.current[player.Player] || 0;

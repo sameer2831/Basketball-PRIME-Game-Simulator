@@ -7,7 +7,7 @@ export default function PlayerCard({ player, onSelect, isSelected }) {
         border
         ${isSelected
           ? 'bg-primary text-secondary border-metallic scale-105'
-          : 'bg-base text-primary hover:bg-metallic/10 border-gray-300 hover:scale-105'}
+          : 'bg-secondary text-primary hover:bg-metallic/20 border-gray-300 hover:scale-105'}
         transform
         duration-300
         ease-in-out
