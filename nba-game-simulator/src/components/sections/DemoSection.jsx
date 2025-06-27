@@ -73,16 +73,23 @@ export default function DemoSection() {
           viewport={{ once: true }}
           className="flex-1 w-full"
         >
-          <video
-             src={`${process.env.PUBLIC_URL}/demo.mp4`}
-            autoPlay
-            muted
-            loop
-             preload="auto"
-            loading="lazy"
-            className="rounded-xl shadow-lg w-full h-auto object-cover"
-            type="video/mp4"
-            />
+          <div style={{ padding: '56.25% 0 0 0', position: 'relative' }}>
+            <iframe
+              src="https://player.vimeo.com/video/1096790531?autoplay=1&loop=1&muted=1&background=1"
+              frameBorder="0"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+              title="demo"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+              }}
+            ></iframe>
+          </div>
+
         </motion.div>
       </div>
     </section>
