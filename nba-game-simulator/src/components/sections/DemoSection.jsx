@@ -74,13 +74,14 @@ export default function DemoSection() {
           className="flex-1 w-full"
         >
           <video
-            src="/demo.mp4"
+             src={`${process.env.PUBLIC_URL}/demo.mp4`}
             autoPlay
             muted
             loop
-            preload="none"
+             preload="auto"
             loading="lazy"
             className="rounded-xl shadow-lg w-full h-auto object-cover"
+            type="video/mp4"
             />
         </motion.div>
       </div>
