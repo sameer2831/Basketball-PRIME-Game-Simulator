@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import demoVideo from '../../assets/demo.mp4';
 
 import TeamSelector from '../DemoTeamSelector';
 import QuickSim from '../QuickSim';
@@ -75,13 +74,14 @@ export default function DemoSection() {
           className="flex-1 w-full"
         >
           <video
-            src={demoVideo}
+            src="/demo.mp4"
             autoPlay
             muted
             loop
-            controls
+            preload="none"
+            loading="lazy"
             className="rounded-xl shadow-lg w-full h-auto object-cover"
-          />
+            />
         </motion.div>
       </div>
     </section>
