@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import hero from '../../assets/hero-basketball-prime.png';
+import hero from '../../assets/prime_logo.png';
 import { Link as ScrollLink } from 'react-scroll';
 
 export default function HeroSection() {

@@ -1,6 +1,7 @@
 import { HashLink } from 'react-router-hash-link';
 import { Link } from 'react-router-dom';
 import useScrollSpy from './useScrollSpy';
+import logo from '../assets/prime_logo-bg.png'
 
 const sectionIds = ['Hero', 'Features', 'Demo', 'About'];
 
@@ -10,7 +11,13 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm text-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-primary">🏀 Basketball PRIME</h1>
+        <Link to="/">
+        <img
+          src={logo} // or your actual logo path
+          alt="Basketball PRIME Logo"
+          className="h-14 w-14 object-cover rounded-full"
+        />
+      </Link>
         <div className="space-x-6 text-sm font-medium">
           {sectionIds.map((id) => (
             <HashLink
