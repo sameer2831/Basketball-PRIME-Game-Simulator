@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import PlayerCard from './PlayerCard';
 
-export default function TeamSelector({ players, selectedPlayers, onTeamChange, title }) {
+export default function TeamSelector({ players, selectedPlayers, onTeamChange, title,unavailablePlayers = [] }) {
   const [filterText, setFilterText] = useState('');
   const [filterPosition, setFilterPosition] = useState('All');
 
@@ -23,17 +23,19 @@ export default function TeamSelector({ players, selectedPlayers, onTeamChange, t
     return ['All', ...Array.from(posSet).sort()];
   }, [players]);
 
+ 
   // Filter and sort players by name and position
   const filteredPlayers = useMemo(() => {
-    return players
-      .filter(player => {
-        const matchesName = player.Player.toLowerCase().includes(filterText.toLowerCase());
-        const matchesPos = filterPosition === 'All' || player.Pos === filterPosition;
-        return matchesName && matchesPos;
-      })
-      .sort((a, b) => a.Player.localeCompare(b.Player));
-  }, [players, filterText, filterPosition]);
-
+     const unavailableNames = new Set(unavailablePlayers.map(p => p.Player));
+  return players
+    .filter(player => {
+      const matchesName = player.Player.toLowerCase().includes(filterText.toLowerCase());
+      const matchesPos = filterPosition === 'All' || player.Pos === filterPosition;
+      const isUnavailable = unavailableNames.has(player.Player);
+      return matchesName && matchesPos && !isUnavailable;
+    })
+    .sort((a, b) => a.Player.localeCompare(b.Player));
+}, [players, filterText, filterPosition, unavailablePlayers]);
   return (
     <div className="bg-secondary rounded-xl p-6 shadow-lg border border-metallic flex flex-col">
       <h2 className="text-primary text-2xl font-display font-semibold mb-4">

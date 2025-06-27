@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 import players from '../data/top_100_elite_players.json';
 import TeamSelector from '../components/TeamSelector';
 import MatchSimulator from '../components/MatchSimulator';
-import logo from '../assets/logo.png';
+import logo from '../assets/prime_logo-bg.png';
 import { Link } from 'react-router-dom';
 
 const BasketballLogo = () => (
   <img
     src={logo}
     alt="Basketball Logo"
-    className="h-28 w-28 mx-auto mb-4"
+    className="h-24 w-24 mx-auto mb-4"
   />
 );
 
@@ -50,12 +50,14 @@ const SimulationPage = () => {
           players={playerData}
           selectedPlayers={teamA}
           onTeamChange={setTeamA}
+          unavailablePlayers={teamB}
         />
         <TeamSelector
           title="Team B"
           players={playerData}
           selectedPlayers={teamB}
           onTeamChange={setTeamB}
+          unavailablePlayers={teamA}
         />
       </div>
 
