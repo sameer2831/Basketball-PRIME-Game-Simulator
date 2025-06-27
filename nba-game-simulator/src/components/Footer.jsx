@@ -20,7 +20,7 @@ const Footer = () => {
     </div>
 
     {/* Basketball Icon (optional) */}
-    <div className="hidden md:block text-orange-500 text-6xl">
+    <div className="hidden md:block text-orange-500 text-6xl slow-spin">
       🏀
     </div>
 
@@ -43,7 +43,7 @@ const Footer = () => {
 
   {/* Bottom copyright */}
   <div className="text-center mt-8 text-xs text-gray-500 border-t border-gray-700 pt-4">
-    &copy; {new Date().getFullYear()} Basketball PRIME. All rights reserved.
+    &copy; {new Date().getFullYear()} Basketball PRIME. All rights reserved. Developed By: Sameer Ashok Balkawade.
   </div>
 </footer>
   );

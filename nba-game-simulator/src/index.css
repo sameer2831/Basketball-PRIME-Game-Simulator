@@ -22,3 +22,15 @@ code {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+@keyframes slowSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.slow-spin {
+  animation: slowSpin 5s linear infinite;
+}

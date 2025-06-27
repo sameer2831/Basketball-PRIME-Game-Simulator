@@ -4,12 +4,13 @@ import TeamSelector from '../components/TeamSelector';
 import MatchSimulator from '../components/MatchSimulator';
 import logo from '../assets/prime_logo-bg.png';
 import { Link } from 'react-router-dom';
+import Footer from '../components/Footer';
 
 const BasketballLogo = () => (
   <img
     src={logo}
-    alt="Basketball Logo"
-    className="h-24 w-24 mx-auto mb-4"
+    alt="Basketball Prime Logo"
+    className="h-20 w-20 md:h-24 md:w-24 mx-auto mb-2 md:mb-4"
   />
 );
 
@@ -23,28 +24,35 @@ const SimulationPage = () => {
   }, []);
 
   return (
-    <div className="p-6 bg-secondary min-h-screen text-base font-display">
+    <div className="p-4 sm:p-6 bg-secondary min-h-screen text-base font-display flex flex-col">
       
-    <div className="flex items-center justify-between mb-10 px-4 flex-wrap gap-4">
-    
-    {/* Home Button */}
-    <Link to="/">
-      <button className="px-5 py-2 rounded-lg bg-primary text-black font-semibold hover:bg-yellow-400 transition">
-        ← Home
-      </button>
-    </Link>
+      {/* Header */}
+      <header className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
+        
+        {/* Home Button */}
+        <Link to="/">
+          <button className="px-5 py-2 rounded-lg bg-primary text-black font-semibold hover:bg-yellow-400 transition">
+            ← Home
+          </button>
+        </Link>
 
-    {/* Logo + Heading */}
-    <div className="flex items-center gap-4 justify-center mx-auto">
-      <BasketballLogo />
-      <h1 className="text-3xl md:text-4xl font-extrabold text-primary drop-shadow-lg tracking-wide whitespace-nowrap">
-        NBA 5v5 Game Simulator 🏀
-      </h1>
-    </div>
+        {/* Title + Logo */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-3 text-center md:text-left">
+          <BasketballLogo />
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-primary drop-shadow-lg tracking-wide">
+              NBA 5v5 Game Simulator
+            </h1>
+            <div className="hidden md:block text-3xl animate-spin-slow">🏀</div>
+          </div>
+        </div>
 
-  </div>
+        {/* Desktop Spacer */}
+        <div className="w-[112px] hidden md:block" />
+      </header>
 
-      <div className="flex flex-col md:flex-row gap-10 max-w-7xl mx-auto px-4">
+      {/* Team Selectors */}
+      <main className="flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto">
         <TeamSelector
           title="Team A"
           players={playerData}
@@ -59,11 +67,15 @@ const SimulationPage = () => {
           onTeamChange={setTeamB}
           unavailablePlayers={teamA}
         />
-      </div>
+      </main>
 
-      <div className="mt-14 max-w-7xl mx-auto px-4">
+      {/* Match Simulator */}
+      <section className="mt-14 max-w-7xl mx-auto">
         <MatchSimulator teamA={teamA} teamB={teamB} />
-      </div>
+      </section>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
