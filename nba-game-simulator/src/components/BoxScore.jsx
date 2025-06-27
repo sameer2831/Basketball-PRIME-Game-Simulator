@@ -27,15 +27,16 @@ export default function BoxScore({ boxScore }) {
     const totals = calculateTotals(players);
 
     return (
-      <div className="mb-6">
-        <h3 className="text-xl font-bold text-primary font-display mb-3">{teamName}</h3>
+      <div className="mb-10">
+        <h3 className="text-xl sm:text-2xl font-bold text-primary font-display mb-3">{teamName}</h3>
+
         <div className="overflow-x-auto rounded-lg shadow-gold">
-          <table className="min-w-full text-sm text-center bg-secondary text-base font-mono">
+          <table className="min-w-full text-xs sm:text-sm text-center bg-secondary text-base font-mono border-collapse">
             <thead className="bg-metallic text-secondary uppercase">
               <tr>
-                <th className="px-3 py-2 text-left">Player</th>
+                <th className="px-3 py-2 text-left sticky left-0 bg-metallic">Player</th>
                 {statHeaders.map(header => (
-                  <th key={header} className="px-2 py-2">{header}</th>
+                  <th key={header} className="px-2 py-2 whitespace-nowrap">{header}</th>
                 ))}
               </tr>
             </thead>
@@ -44,7 +45,7 @@ export default function BoxScore({ boxScore }) {
                 const displayName = name.replace(/^Team [AB] - /, '');
                 return (
                   <tr key={name} className="border-b border-metallic/30 hover:bg-metallic/10">
-                    <td className="px-3 py-2 text-left font-semibold">{displayName}</td>
+                    <td className="px-3 py-2 text-left font-semibold sticky left-0 bg-secondary">{displayName}</td>
                     {statHeaders.map(stat => {
                       if (stat === 'FG%')
                         return <td key={stat}>{stats.FGA ? ((stats.FGM / stats.FGA) * 100).toFixed(1) + '%' : '0%'}</td>;
@@ -58,7 +59,7 @@ export default function BoxScore({ boxScore }) {
                 );
               })}
               <tr className="bg-base text-secondary font-bold border-t border-metallic">
-                <td className="text-left px-3 py-2">Total</td>
+                <td className="text-left px-3 py-2 sticky left-0 bg-base">Total</td>
                 {statHeaders.map(stat => (
                   <td key={stat}>{totals[stat] ?? 0}</td>
                 ))}
@@ -71,7 +72,7 @@ export default function BoxScore({ boxScore }) {
   };
 
   return (
-    <div className="mt-10 space-y-10">
+    <div className="mt-10 space-y-12 px-4 w-full">
       {renderTeamSection("Team A", teamAPlayers)}
       {renderTeamSection("Team B", teamBPlayers)}
     </div>

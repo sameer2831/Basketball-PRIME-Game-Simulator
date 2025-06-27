@@ -43,7 +43,7 @@ const SimulationPage = () => {
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-primary drop-shadow-lg tracking-wide">
               NBA 5v5 Game Simulator
             </h1>
-            <div className="hidden md:block text-3xl animate-spin-slow">🏀</div>
+            <div className="hidden md:block text-3xl slow-spin">🏀</div>
           </div>
         </div>
 
