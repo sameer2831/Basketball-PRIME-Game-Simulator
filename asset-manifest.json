@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/Basketball-PRIME-Game-Simulator/static/css/main.0b6e229f.css",
-    "main.js": "/Basketball-PRIME-Game-Simulator/static/js/main.f5c0dfb9.js",
+    "main.css": "/Basketball-PRIME-Game-Simulator/static/css/main.524d61c0.css",
+    "main.js": "/Basketball-PRIME-Game-Simulator/static/js/main.7c7fa2fd.js",
     "static/js/453.950ad98c.chunk.js": "/Basketball-PRIME-Game-Simulator/static/js/453.950ad98c.chunk.js",
     "static/media/prime_logo.png": "/Basketball-PRIME-Game-Simulator/static/media/prime_logo.27516deb27bb57e3bedb.png",
     "static/media/fa-solid-900.ttf": "/Basketball-PRIME-Game-Simulator/static/media/fa-solid-900.2582b0e4bcf85eceead0.ttf",
@@ -14,12 +14,12 @@
     "static/media/fa-v4compatibility.ttf": "/Basketball-PRIME-Game-Simulator/static/media/fa-v4compatibility.da94ef451f4969af06e6.ttf",
     "static/media/fa-v4compatibility.woff2": "/Basketball-PRIME-Game-Simulator/static/media/fa-v4compatibility.ea8f94e1d22e0d35ccd4.woff2",
     "index.html": "/Basketball-PRIME-Game-Simulator/index.html",
-    "main.0b6e229f.css.map": "/Basketball-PRIME-Game-Simulator/static/css/main.0b6e229f.css.map",
-    "main.f5c0dfb9.js.map": "/Basketball-PRIME-Game-Simulator/static/js/main.f5c0dfb9.js.map",
+    "main.524d61c0.css.map": "/Basketball-PRIME-Game-Simulator/static/css/main.524d61c0.css.map",
+    "main.7c7fa2fd.js.map": "/Basketball-PRIME-Game-Simulator/static/js/main.7c7fa2fd.js.map",
     "453.950ad98c.chunk.js.map": "/Basketball-PRIME-Game-Simulator/static/js/453.950ad98c.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.0b6e229f.css",
-    "static/js/main.f5c0dfb9.js"
+    "static/css/main.524d61c0.css",
+    "static/js/main.7c7fa2fd.js"
   ]
 }
