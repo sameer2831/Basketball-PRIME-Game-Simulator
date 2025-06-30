@@ -38,7 +38,7 @@ Auto-deploys using GitHub Actions every time a change hits the main branch.
 
 | Tech | Usage |
 |------|-------|
-| **Python, Pandas, BeautifulSoup, Jupyter Notebook ** | Data Scraping |
+| **Python, Pandas, BeautifulSoup, Jupyter Notebook** | Data Scraping |
 | **React** | Frontend framework |
 | **Tailwind CSS** | Utility-first styling |
 | **Chart.js** | In-game player stat charts |
