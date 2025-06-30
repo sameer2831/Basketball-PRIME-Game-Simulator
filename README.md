@@ -38,12 +38,25 @@ Auto-deploys using GitHub Actions every time a change hits the main branch.
 
 | Tech | Usage |
 |------|-------|
+| **Python, Pandas, BeautifulSoup, Jupyter Notebook ** | Data Scraping |
 | **React** | Frontend framework |
 | **Tailwind CSS** | Utility-first styling |
 | **Chart.js** | In-game player stat charts |
 | **Framer Motion** | Animations & transitions |
 | **GitHub Actions** | CI/CD pipeline for auto-deploy |
 | **GitHub Pages** | Hosting |
+
+---
+
+## 📊 Data Scraping Tech Stack
+
+NBA player stats were collected using:
+
+- **🔍 BeautifulSoup (Python)** – to scrape advanced stats from Basketball Reference and other sources.
+- **📊 Pandas** – for data cleaning, transformation, and CSV generation.
+- **📓 Jupyter Notebooks** – to document, visualize, and preprocess datasets before using them in the app.
+
+Scraping scripts and preprocessed data can be found in the [`Data_script/`](./Data_script/) folder.
 
 ---
 
