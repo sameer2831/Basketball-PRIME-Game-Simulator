@@ -5,7 +5,7 @@ import GameControl from './GameControl';
 import Scoreboard from './Scoreboard';
 import GameLog from './GameLog';
 import BoxScore from './BoxScore';
-
+import GameStatChart from './GameStatsChart';
 const positionShotPreferences = {
   PG: ['three', 'midRange', 'paint'],
   SG: ['three', 'midRange'],
@@ -49,7 +49,16 @@ export default function MatchSimulator({ teamA = [], teamB = [] }) {
   const [momentum, setMomentum] = useState({ team: null, streak: 0 });
   const fatigueMap = useRef({});
   const lastScorer = useRef(null);
-
+  const [mode, setMode] = useState('single'); // 'single' or 'series'
+  const [seriesResults, setSeriesResults] = useState([]);
+  const [singleGameSummary, setSingleGameSummary] = useState(null);
+  const clearSeries = () => {
+  setSeriesResults([]);
+  setSeriesMVP(null); 
+  addLog("--- Series Log Cleared ---");
+};
+  const [seriesMVP, setSeriesMVP] = useState(null);
+  const [showChart, setShowChart] = useState(false);
   const [boxScore, setBoxScore] = useState({});
   const boxScoreRef = useRef({});
   const setAndMirrorBoxScore = (updaterFn) => {
@@ -66,8 +75,14 @@ export default function MatchSimulator({ teamA = [], teamB = [] }) {
       .reduce((total, [, stats]) => total + (stats.PTS || 0), 0);
   };
 
-  const scoreA = getTeamPoints(boxScoreRef.current, 'Team A');
-  const scoreB = getTeamPoints(boxScoreRef.current, 'Team B');
+ const [scoreA, setScoreA] = useState(0);
+  const [scoreB, setScoreB] = useState(0);
+
+  useEffect(() => {
+    setScoreA(getTeamPoints(boxScore, 'Team A'));
+    setScoreB(getTeamPoints(boxScore, 'Team B'));
+  }, [boxScore]);
+
 
   const addLog = (msg) => setGameLog(prev => [...prev, msg]);
 
@@ -87,6 +102,7 @@ export default function MatchSimulator({ teamA = [], teamB = [] }) {
   A: [],
   B: [],
 });
+
  const applyAdvancedStats = (player, fatigue, momentumBoost) => {
     const trueShooting = player['TS%'] ?? player['FG%']; // fallback
     const turnoverRate = player['TOV%'] / 100 || 0.12;
@@ -114,6 +130,7 @@ export default function MatchSimulator({ teamA = [], teamB = [] }) {
     lastScorer.current = null;
     setMomentum({ team: null, streak: 0 });
     setIsSimulating(false);
+    setSingleGameSummary(null);
     const initBoxScore = {};
     teamA.forEach(player => {
       initBoxScore[`Team A - ${player.Player}`] = { PTS: 0, AST: 0, TRB: 0, STL: 0, BLK: 0, TOV: 0, PF: 0, FGM: 0, FGA: 0, '3PM': 0, '3PA': 0, FTM: 0, FTA: 0 };
@@ -122,6 +139,7 @@ export default function MatchSimulator({ teamA = [], teamB = [] }) {
       initBoxScore[`Team B - ${player.Player}`] = { PTS: 0, AST: 0, TRB: 0, STL: 0, BLK: 0, TOV: 0, PF: 0, FGM: 0, FGA: 0, '3PM': 0, '3PA': 0, FTM: 0, FTA: 0 };
     });
     setAndMirrorBoxScore(() => initBoxScore);
+
   };
 
   // const updateStats = (playerName, stat, increment = 1) => {
@@ -317,7 +335,23 @@ const simulatePossession = (offenseTeam, defenseTeam, currentTeamName) => {
   return pointsScored;
 };
 
+const getTopPerformer = (teamPrefix) => {
+  const players = Object.entries(boxScoreRef.current)
+    .filter(([name]) => name.startsWith(teamPrefix));
+    
+  let topPlayer = null;
+  let topScore = -Infinity;
 
+  for (const [name, stats] of players) {
+    const perfScore = (stats.PTS || 0) + (stats.TRB || 0) + (stats.AST || 0) + 
+                      (stats.STL || 0) + (stats.BLK || 0) - (stats.TOV || 0);
+    if (perfScore > topScore) {
+      topScore = perfScore;
+      topPlayer = { name, stats, perfScore };
+    }
+  }
+  return topPlayer;
+};  
 const simulateGame = async () => {
     if (teamA.length !== 5 || teamB.length !== 5) {
       addLog("Please assign 5 players to each team.");
@@ -374,13 +408,103 @@ const simulateGame = async () => {
     addLog(`--- Overtime ${overtimeCount} Ended --- Score: A ${getTeamPoints(boxScoreRef.current, 'Team A')} - B ${getTeamPoints(boxScoreRef.current, 'Team B')}`);
   }
 
+    const finalScoreA = getTeamPoints(boxScoreRef.current, 'Team A');
+    const finalScoreB = getTeamPoints(boxScoreRef.current, 'Team B');
+
     addLog("--- Game Over ---");
-    addLog(`Final: Team A ${getTeamPoints(boxScoreRef.current, 'Team A')} - Team B ${getTeamPoints(boxScoreRef.current, 'Team B')}`);
+    addLog(`Final: Team A ${finalScoreA} - Team B ${finalScoreB}`);
+
     setIsSimulating(false);
+    //return finalScoreA > finalScoreB ? 'A' : 'B';
+    const gameSummary = {
+      winner: finalScoreA > finalScoreB ? 'A' : 'B',
+      scoreA: finalScoreA,
+      scoreB: finalScoreB,
+      topA: getTopPerformer('Team A'),
+      topB: getTopPerformer('Team B'),
+    };
+    setSingleGameSummary(gameSummary); 
+    return gameSummary;
+
   };
+
+const simulateSeries = async () => {
+  const results = []; // Local array for reliable accumulation
+  let winsA = 0;
+  let winsB = 0;
+  let gameNumber = 1;
+
+  setSeriesResults([]); // Clear state display
+
+  while (winsA < 4 && winsB < 4) {
+    addLog(`=== Game ${gameNumber} of the Series ===`);
+    const gameSummary = await simulateGame();
+    const { winner, scoreA, scoreB, topA, topB } = gameSummary;
+
+    if (winner === 'A') winsA++;
+    else winsB++;
+
+    results.push({ game: gameNumber, winner, scoreA, scoreB, topA, topB });
+     const newGameResult = {
+    game: gameNumber,
+    winner,
+    scoreA,
+    scoreB,
+    topA,
+    topB,
+  };
+
+  setSeriesResults(prev => [...prev, newGameResult]);
+
+    addLog(`Series Score: Team A ${winsA} - Team B ${winsB}`);
+    await new Promise(res => setTimeout(res, 1500));
+    gameNumber++;
+  }
+
+  //setSeriesResults(results); // Now update state in one go
+
+  addLog(`=== Series Over ===`);
+  addLog(`Winner: ${winsA > winsB ? 'Team A' : 'Team B'} (${winsA}-${winsB})`);
+
+  const playerPerformances = {};
+
+  results.forEach(({ topA, topB }) => {
+    [topA, topB].forEach(({ name, perfScore }) => {
+      if (!playerPerformances[name]) playerPerformances[name] = 0;
+      playerPerformances[name] += perfScore;
+    });
+  });
+
+  const seriesMVP = Object.entries(playerPerformances).sort((a, b) => b[1] - a[1])[0];
+  setSeriesMVP(seriesMVP); 
+  addLog(`🏆 Series MVP: ${seriesMVP[0]} (${seriesMVP[1]} performance points)`);
+};
+
 
   return (
     <div className="p-4 space-y-4">
+      <div className="flex gap-4 items-center mb-4">
+        <label>
+          <input
+            type="radio"
+            name="mode"
+            value="single"
+            checked={mode === 'single'}
+            onChange={() => setMode('single')}
+          /> Single Game
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="mode"
+            value="series"
+            checked={mode === 'series'}
+            disabled={isSimulating}
+            onChange={() => setMode('series')}
+          /> Best-of-7 Series
+        </label>
+      </div>
+
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Quarter {quarter}</h2>
         <div className="font-mono text-lg">
@@ -390,16 +514,103 @@ const simulateGame = async () => {
       <AnimatePresence mode="wait">
         
           <Scoreboard
-  scoreA={scoreA}
-  scoreB={scoreB}
-  quarterlyScoresA={quarterlyScores.A}
-  quarterlyScoresB={quarterlyScores.B}
-  currentQuarter={quarter}
-/>
+          scoreA={scoreA}
+          scoreB={scoreB}
+          quarterlyScoresA={quarterlyScores.A}
+          quarterlyScoresB={quarterlyScores.B}
+          currentQuarter={quarter}
+        />
         
       </AnimatePresence>
-      <GameControl isSimulating={isSimulating} onStartGame={simulateGame} onResetGame={resetGame} />
+      <GameControl
+        isSimulating={isSimulating}
+        onStartGame={() => {
+          if (mode === 'series') simulateSeries();
+          else simulateGame();
+        }}
+        onResetGame={resetGame}
+      />
       <GameLog gameLog={gameLog} />
+      {mode === 'single' && singleGameSummary && (
+  <div className="bg-white rounded-lg shadow p-4 border border-gray-300">
+    <div className="text-lg text-secondary font-semibold mb-1">
+      🏁 Single Game Result: <span className="text-blue-700">Team {singleGameSummary.winner} wins</span>
+    </div>
+    <div className="mb-2 text-secondary">Final Score — <strong>Team A:</strong> {singleGameSummary.scoreA} | <strong>Team B:</strong> {singleGameSummary.scoreB}</div>
+    <div className="flex justify-between text-sm text-secondary">
+      <ul className="space-y-2">
+        <div>
+          🔥 <strong>{singleGameSummary.topA.name}</strong> — {singleGameSummary.topA.stats.PTS} pts, {singleGameSummary.topA.stats.AST} ast, {singleGameSummary.topA.stats.TRB} trb, {singleGameSummary.topA.stats.STL} stl, {singleGameSummary.topA.stats.BLK} blk
+        </div>
+        <div>
+          🔥 <strong>{singleGameSummary.topB.name}</strong> — {singleGameSummary.topB.stats.PTS} pts, {singleGameSummary.topB.stats.AST} ast, {singleGameSummary.topB.stats.TRB} trb, {singleGameSummary.topB.stats.STL} stl, {singleGameSummary.topB.stats.BLK} blk
+        </div>
+      </ul>
+    </div>
+    <GameStatChart topA={singleGameSummary.topA} topB={singleGameSummary.topB} />
+  </div>
+)}
+{mode === 'series' && seriesResults.length > 0 && (
+  <div className="bg-gray-300 p-4 text-secondary rounded shadow">
+    <div className="flex items-center justify-between">
+      <h3 className="font-bold text-lg text-secondary mb-2">Series Progress</h3>
+      <button
+        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+        onClick={clearSeries}
+      >
+        Clear Series
+      </button>
+    </div>
+
+    {/* === Series Counter === */}
+    <div className="text-md font-semibold mb-4">
+      Series Score: 🟠 Team A - Team B 🔵 ({seriesResults.filter(g => g.winner === 'A').length} -  {seriesResults.filter(g => g.winner === 'B').length})
+    </div>
+
+    {/* === Per Game Summary === */}
+    <ul className="space-y-4">
+      {seriesResults.map(({ game, winner, scoreA, scoreB, topA, topB }) => (
+        <li key={game} className="bg-white rounded-lg shadow p-4 border border-gray-300">
+          <div className="text-lg font-semibold mb-1">
+            Game {game}: <span className="text-blue-700">Team {winner} wins</span>
+          </div>
+          <div className="mb-2">
+            Final Score — <strong>Team A:</strong> {scoreA} | <strong>Team B:</strong> {scoreB}
+          </div>
+          <div className="space-y-1 text-sm">
+            <div>
+              🔥 <strong>{topA.name}</strong> — {topA.stats.PTS} pts, {topA.stats.AST} ast, {topA.stats.TRB} trb, {topA.stats.STL} stl, {topA.stats.BLK} blk
+            </div>
+            <div>
+              🔥 <strong>{topB.name}</strong> — {topB.stats.PTS} pts, {topB.stats.AST} ast, {topB.stats.TRB} trb, {topB.stats.STL} stl, {topB.stats.BLK} blk
+            </div>
+          </div>
+          
+      <button
+        onClick={() => setShowChart(prev => !prev)}
+        className="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+      >
+        {showChart ? 'Hide Chart' : 'Show Chart'}
+      </button>
+
+      {showChart && (
+        <div className="mt-3">
+          <GameStatChart topA={topA} topB={topB} />
+        </div>
+      )}
+        </li>
+      ))}
+    </ul>
+
+    {/* === MVP Shown Only When Series Ends === */}
+    {seriesResults.length >= 4 && ( // could check for 4 wins instead
+      <div className="mt-4 font-bold">
+        🏆 Series MVP: {seriesMVP?.[0]} (Score: {seriesMVP?.[1]})
+      </div>
+    )}
+  </div>
+)}
+
       <BoxScore boxScore={boxScore} />
     </div>
   );

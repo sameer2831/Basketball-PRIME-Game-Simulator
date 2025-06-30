@@ -1,6 +1,4 @@
-import React from 'react';
-
-export default function GameControl({ isSimulating, onStartGame, onResetGame }) {
+export default function GameControl({ isSimulating, onStartGame, onResetGame, mode }) {
   return (
     <div className="flex justify-center gap-4 my-6">
       <button
@@ -12,7 +10,11 @@ export default function GameControl({ isSimulating, onStartGame, onResetGame }) 
             : 'bg-primary text-secondary hover:bg-metallic'
         }`}
       >
-        {isSimulating ? 'Simulating...' : 'Start Game'}
+        {isSimulating
+          ? 'Simulating...'
+          : mode === 'series'
+          ? 'Start Series'
+          : 'Start Game'}
       </button>
 
       <button
@@ -24,7 +26,7 @@ export default function GameControl({ isSimulating, onStartGame, onResetGame }) 
             : 'bg-secondary text-base hover:bg-gray-800'
         }`}
       >
-        Reset Game
+        Reset
       </button>
     </div>
   );
