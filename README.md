@@ -136,5 +136,3 @@ Have suggestions, feedback, or NBA debates to share?
 Build your dream teams. Simulate the impossible. Let the stats settle the debate.
 
 ---
-
-Let me know if you'd like [visual badges](f), [demo GIFs](f), or [project logo suggestions](f) for the README!
